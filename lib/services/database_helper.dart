@@ -1,108 +1,74 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:meta/meta.dart';
 import '../models/medication.dart';
 
 class DatabaseHelper {
   static DatabaseHelper? _instance;
-  static Database? _database;
-  final String _databaseName;
+  static Box<Medication>? _box;
+  final String _boxName;
 
-  DatabaseHelper._init(this._databaseName);
+  DatabaseHelper._init(this._boxName);
 
   static DatabaseHelper get instance {
-    _instance ??= DatabaseHelper._init('medications.db');
+    _instance ??= DatabaseHelper._init('medications');
     return _instance!;
   }
 
   @visibleForTesting
   factory DatabaseHelper.test() {
-    return DatabaseHelper._init('test_medications.db');
+    return DatabaseHelper._init('test_medications');
   }
 
   @visibleForTesting
   static void resetInstance() {
     _instance = null;
-    _database = null;
+    _box = null;
   }
 
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDB(_databaseName);
-    return _database!;
+  Future<Box<Medication>> get box async {
+    if (_box != null) return _box!;
+    _box = await _initBox(_boxName);
+    return _box!;
   }
 
-  Future<Database> _initDB(String filePath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
-
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
-  }
-
-  Future<void> _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE medications(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        type TEXT NOT NULL,
-        dosage INTEGER NOT NULL,
-        reminderTimes TEXT NOT NULL,
-        frequencyType TEXT NOT NULL,
-        selectedDays TEXT NOT NULL,
-        duration TEXT NOT NULL,
-        hasAlarm INTEGER NOT NULL,
-        snoozeTime TEXT,
-        remainingQuantity INTEGER NOT NULL
-      )
-    ''');
+  Future<Box<Medication>> _initBox(String boxName) async {
+    if (!Hive.isBoxOpen(boxName)) {
+      return await Hive.openBox<Medication>(boxName);
+    }
+    return Hive.box<Medication>(boxName);
   }
 
   Future<int> insertMedication(Medication medication) async {
-    final db = await database;
-    return await db.insert('medications', medication.toMap());
+    final box = await this.box;
+    final id = await box.add(medication);
+    return id;
   }
 
   Future<List<Medication>> getAllMedications() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('medications');
-    return List.generate(maps.length, (i) => Medication.fromMap(maps[i]));
+    final box = await this.box;
+    return box.values.toList();
   }
 
   Future<int> updateMedication(Medication medication) async {
-    final db = await database;
-    return await db.update(
-      'medications',
-      medication.toMap(),
-      where: 'id = ?',
-      whereArgs: [medication.id],
-    );
+    final box = await this.box;
+    await box.put(medication.id, medication);
+    return medication.id!;
   }
 
-  Future<int> deleteMedication(int id) async {
-    final db = await database;
-    return await db.delete(
-      'medications',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+  Future<void> deleteMedication(int id) async {
+    final box = await this.box;
+    await box.delete(id);
   }
 
   Future<void> close() async {
-    if (_database != null) {
-      final db = await database;
-      await db.close();
-      _database = null;
+    if (_box != null && _box!.isOpen) {
+      await _box!.close();
+      _box = null;
     }
   }
 
   Future<void> deleteDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, _databaseName);
-    await databaseFactory.deleteDatabase(path);
-    _database = null;
+    await Hive.deleteBoxFromDisk(_boxName);
+    _box = null;
   }
 }

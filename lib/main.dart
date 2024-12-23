@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/home_screen.dart';
+import 'models/medication.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(MedicationAdapter());
   tz.initializeTimeZones();
   runApp(const MedicationReminderApp());
 }

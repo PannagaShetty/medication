@@ -24,8 +24,8 @@ void main() {
       expect(medication.type, 'Tablet');
       expect(medication.dosage, 1);
       expect(medication.reminderTimes.length, 1);
-      expect(medication.reminderTimes[0].hour, 8);
-      expect(medication.reminderTimes[0].minute, 0);
+      expect(medication.reminderTimesAsTimeOfDay[0].hour, 8);
+      expect(medication.reminderTimesAsTimeOfDay[0].minute, 0);
       expect(medication.frequencyType, 'Every Day');
       expect(medication.selectedDays, [1, 2, 3, 4, 5, 6, 7]);
       expect(medication.duration, '1 Month');
@@ -79,12 +79,12 @@ void main() {
 
       final recreatedMedication = Medication.fromMap(map);
       expect(recreatedMedication.reminderTimes.length, 3);
-      expect(recreatedMedication.reminderTimes[0].hour, 8);
-      expect(recreatedMedication.reminderTimes[0].minute, 15);
-      expect(recreatedMedication.reminderTimes[1].hour, 14);
-      expect(recreatedMedication.reminderTimes[1].minute, 30);
-      expect(recreatedMedication.reminderTimes[2].hour, 20);
-      expect(recreatedMedication.reminderTimes[2].minute, 45);
+      expect(recreatedMedication.reminderTimesAsTimeOfDay[0].hour, 8);
+      expect(recreatedMedication.reminderTimesAsTimeOfDay[0].minute, 15);
+      expect(recreatedMedication.reminderTimesAsTimeOfDay[1].hour, 14);
+      expect(recreatedMedication.reminderTimesAsTimeOfDay[1].minute, 30);
+      expect(recreatedMedication.reminderTimesAsTimeOfDay[2].hour, 20);
+      expect(recreatedMedication.reminderTimesAsTimeOfDay[2].minute, 45);
     });
 
     test('should handle custom selected days', () {

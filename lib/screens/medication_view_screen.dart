@@ -65,12 +65,13 @@ class MedicationViewScreen extends StatelessWidget {
     }
   }
 
-  String _getFormattedTime(List<TimeOfDay> times) {
+  String _getFormattedTime(List<String> times) {
     if (times.isEmpty) return '';
-    return times
-        .map((time) => DateFormat('hh:mm a')
-            .format(DateTime(2022, 1, 1, time.hour, time.minute)))
-        .join(', ');
+    return times.map((timeStr) {
+      final parts = timeStr.split(':');
+      return DateFormat('hh:mm a').format(
+          DateTime(2022, 1, 1, int.parse(parts[0]), int.parse(parts[1])));
+    }).join(', ');
   }
 
   Widget _buildInfoRow(String label, String value, IconData icon) {

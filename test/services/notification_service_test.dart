@@ -77,7 +77,9 @@ void main() {
         uiLocalNotificationDateInterpretation:
             anyNamed('uiLocalNotificationDateInterpretation'),
         matchDateTimeComponents: anyNamed('matchDateTimeComponents'),
-      )).thenAnswer((_) async {});
+      )).thenAnswer((_) async {
+        return null;
+      });
 
       await notificationService.scheduleMedicationNotification(
         medication,
@@ -99,7 +101,9 @@ void main() {
     });
 
     test('should cancel notification correctly', () async {
-      when(mockNotificationsPlugin.cancel(any)).thenAnswer((_) async {});
+      when(mockNotificationsPlugin.cancel(any)).thenAnswer((_) async {
+        return null;
+      });
 
       await notificationService.cancelNotification(1);
 
@@ -107,7 +111,9 @@ void main() {
     });
 
     test('should cancel all notifications correctly', () async {
-      when(mockNotificationsPlugin.cancelAll()).thenAnswer((_) async {});
+      when(mockNotificationsPlugin.cancelAll()).thenAnswer((_) async {
+        return null;
+      });
 
       await notificationService.cancelAllNotifications();
 

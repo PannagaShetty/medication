@@ -47,12 +47,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  String _getFormattedTime(List<TimeOfDay> times) {
+  String _getFormattedTime(List<String> times) {
     if (times.isEmpty) return '';
-    return times
-        .map((time) => DateFormat('hh:mm a')
-            .format(DateTime(2022, 1, 1, time.hour, time.minute)))
-        .join(', ');
+    return times.map((timeStr) {
+      final parts = timeStr.split(':');
+      final time =
+          TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+      return DateFormat('hh:mm a')
+          .format(DateTime(2022, 1, 1, time.hour, time.minute));
+    }).join(', ');
   }
 
   Color _getMedicationColor(String type) {
